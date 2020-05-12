@@ -34,10 +34,8 @@ class Blockchain {
      * Passing as a data `{data: 'Genesis Block'}`
      */
     async initializeChain() {
-            console.log('initializes chain')
         if( this.height === -1){
             let block = new BlockClass.Block({data: 'Genesis Block'});
-            console.log('genesis block', block)
             await this._addBlock(block);
         }
     }
@@ -65,21 +63,19 @@ class Blockchain {
      */
     _addBlock(block) {
         let self = this;
+        console.log('add block', block)
         return new Promise(async (resolve, reject) => {
-            console.log('new block', block)
            block.height = await this.getChainHeight()+1;
            block.timestamp = new Date().getTime().toString().slice(0, -3);
            if(self.chain.length > 0){
-            block.previousBlockHash = (this.getChainHeight()-1).hash;
+                block.previousBlockHash = self.chain[block.height-1].hash;
           }
           // Block hash with SHA256 using newBlock and converting to a string
           block.hash = SHA256(JSON.stringify(block)).toString();
           // Adding block object to chain
             if(block) {
-                console.log('block', block)
-                console.log('chain', self.chain.length)
                 resolve(self.chain.push(block));
-                console.log('self chain', self.chain);
+                this.height = block.height;
             }
             else{
                 reject('An error occured while creating the block')
@@ -97,7 +93,7 @@ class Blockchain {
      */
     requestMessageOwnershipVerification(address) {
         return new Promise((resolve) => {
-            resolve(`address:${new Date().getTime().toString().slice(0,-3)}:starRegistry`);
+            resolve(`${address}:${new Date().getTime().toString().slice(0,-3)}:starRegistry`);
         });
     }
 
@@ -121,17 +117,14 @@ class Blockchain {
     submitStar(address, message, signature, star) {
         let self = this;
         return new Promise(async (resolve, reject) => {
-            message = this.requestMessageOwnershipVerification(address).then(
-                function(result) {
-                    return result
-                })
             let blockTime = parseInt(message.split(':')[1]);
             let currentTime = parseInt(new Date().getTime().toString().slice(0, -3));
+            console.log('currenttime', currentTime)
             if (currentTime - blockTime < 5 * 6000) {
                 bitcoinMessage.verify(message, address, signature);
-                star = new BlockClass.Block({data: 'Star Block'});
-                self.chain._addBlock(star);
-                resolve(star);
+                let block = new BlockClass.Block({"star": star, "owner":address});
+                await this._addBlock(block)
+                resolve(block)
             }
             else {
                 reject(error)
