@@ -45,8 +45,6 @@ class Block {
              let validHash = SHA256(JSON.stringify(this)).toString();
 
             // Comparing if the hashes changed
-            console.log('aux hash', auxHash)
-            console.log('valid hash', validHash)
             if (auxHash === validHash) {
             // Returning the Block is valid
                 resolve("The Block is valid.");

@@ -63,7 +63,6 @@ class Blockchain {
      */
     _addBlock(block) {
         let self = this;
-        console.log('add block', block)
         return new Promise(async (resolve, reject) => {
            block.height = await this.getChainHeight()+1;
            block.timestamp = new Date().getTime().toString().slice(0, -3);
@@ -125,7 +124,6 @@ class Blockchain {
                 let block = new BlockClass.Block('star block');
                 block.owner = address;
                 block.star = star;
-                console.log('star', block)
                 await this._addBlock(block)
                 resolve(block)
             }
@@ -162,18 +160,14 @@ class Blockchain {
     async getBlockByHeight(height) {
         let self = this;
         return new Promise((resolve, reject) => {
-            let chain = self.chain;
-        let block =  chain.filter(function(block) {
-            return block.height == height;
-        })
-        block = block[0];
+            let blocks = self.chain.filter(block => block.height === height);
+            let block = blocks[0];
             if(block){
                 resolve(block).then(function(result) {
                     return result
                 });
             } else {
-                console.log('An error occured')
-                resolve(null);
+                reject(Error('Could not fetch block'));
             }
         });
     }
@@ -190,7 +184,6 @@ class Blockchain {
         let stars = [];
         return new Promise((resolve, reject) => {
             stars = self.chain.filter(block => block.owner === address);
-
             if(stars !== null) {
                 resolve(stars)
             }
