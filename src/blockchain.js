@@ -122,7 +122,10 @@ class Blockchain {
             console.log('currenttime', currentTime)
             if (currentTime - blockTime < 5 * 6000) {
                 bitcoinMessage.verify(message, address, signature);
-                let block = new BlockClass.Block({"star": star, "owner":address});
+                let block = new BlockClass.Block('star block');
+                block.owner = address;
+                block.star = star;
+                console.log('star', block)
                 await this._addBlock(block)
                 resolve(block)
             }
@@ -186,12 +189,14 @@ class Blockchain {
         let self = this;
         let stars = [];
         return new Promise((resolve, reject) => {
-            stars = self.chain.filter(block => block.address === address);
+            stars = self.chain.filter(block => block.owner === address);
+            console.log('stars', self.chain)
+            console.log('starsByOwners', stars)
             if(stars !== null) {
                 resolve(stars)
             }
             else {
-                reject('No stars')
+                reject(Error('No stars'))
             }
         });
     }
