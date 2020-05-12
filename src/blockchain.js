@@ -118,22 +118,20 @@ class Blockchain {
         return new Promise(async (resolve, reject) => {
             let blockTime = parseInt(message.split(':')[1]);
             let currentTime = parseInt(new Date().getTime().toString().slice(0, -3));
-            console.log('currenttime', currentTime)
             if (currentTime - blockTime < 5 * 6000) {
                 bitcoinMessage.verify(message, address, signature);
                 let block = new BlockClass.Block('star block');
                 block.owner = address;
                 block.star = star;
+                console.log('block', block)
                 await this._addBlock(block)
                 resolve(block)
             }
             else {
-                reject(error)
+                reject(Error('Could not add block.'))
             }
-         
         });
     }
-
     /**
      * This method will return a Promise that will resolve with the Block
      *  with the hash passed as a parameter.
@@ -185,7 +183,8 @@ class Blockchain {
         return new Promise((resolve, reject) => {
             stars = self.chain.filter(block => block.owner === address);
             if(stars !== null) {
-                resolve(stars)
+                const starsByOwner = stars.map(({ height, hash, body, time, timestamp, previousBlockHash,  ...star }) => star)
+                resolve(starsByOwner)
             }
             else {
                 reject(Error('No stars'))

@@ -15,12 +15,12 @@ const hex2ascii = require('hex2ascii');
 class Block {
 
     // Constructor - argument data will be the object containing the transaction data
-	constructor(data){
-		this.hash = null;                                           // Hash of the block
-		this.height = 0;                                            // Block Height (consecutive number of each block)
-		this.body = Buffer(JSON.stringify(data)).toString('hex');   // Will contain the transactions stored in the block, by default it will encode the data
-		this.time = +new Date;                                              // Timestamp for the Block creation
-		this.previousBlockHash = null;                              // Reference to the previous Block Hash
+    constructor(data){
+        this.hash = null;                                           // Hash of the block
+        this.height = 0;                                            // Block Height (consecutive number of each block)
+        this.body = Buffer(JSON.stringify(data)).toString('hex');   // Will contain the transactions stored in the block, by default it will encode the data
+        this.time = +new Date;                                              // Timestamp for the Block creation
+        this.previousBlockHash = null;                              // Reference to the previous Block Hash
     }
     
     /**
@@ -39,13 +39,15 @@ class Block {
         let self = this;
         return new Promise((resolve, reject) => {
             // Save in auxiliary variable the current block hash
-            let auxHash = self.hash;
+            let currentHash = self.hash;
+            self.hash = null;
                                             
             // Recalculate the hash of the Block
-             let validHash = SHA256(JSON.stringify(this)).toString();
+             let newHash = SHA256(JSON.stringify(self)).toString();
+             self.hash = newHash;
 
             // Comparing if the hashes changed
-            if (auxHash === validHash) {
+            if (currentHash === newHash) {
             // Returning the Block is valid
                 resolve("The Block is valid.");
             }
@@ -90,3 +92,4 @@ class Block {
 }
 
 module.exports.Block = Block;                    // Exposing the Block class as a module
+

@@ -63,6 +63,12 @@ class BlockchainController {
                 const message = req.body.message;
                 const signature = req.body.signature;
                 const star = req.body.star;
+
+                console.log('address', address)
+                console.log('address', signature)
+
+                console.log('address', star)
+                console.log('address', message)
                 try {
                     let block = await this.blockchain.submitStar(address, message, signature, star);
                     if(block){
@@ -122,3 +128,4 @@ class BlockchainController {
 }
 
 module.exports = (app, blockchainObj) => { return new BlockchainController(app, blockchainObj);}
+
