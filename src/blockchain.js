@@ -190,8 +190,7 @@ class Blockchain {
         let stars = [];
         return new Promise((resolve, reject) => {
             stars = self.chain.filter(block => block.owner === address);
-            console.log('stars', self.chain)
-            console.log('starsByOwners', stars)
+
             if(stars !== null) {
                 resolve(stars)
             }
@@ -211,20 +210,21 @@ class Blockchain {
         let self = this;
         let errorLog = [];
         return new Promise(async (resolve, reject) => {
-            let error = self.chain.forEach( block => {
-                block.validate().then(
-                    function(error) {
-                        return error
-                    }
-                ) 
-            })
-            if (error) {
-                errorLog = errorLog.push(error)
-                resolve(errorLog)
-            } 
-            else reject('Blockchain valid')
+            let prevBlockHash = null
+            for (const block of self.chain) {
+                const isValid = await block.validate();
+                if (!isValid || block.previousBlockHash !== prevBlockHash) {
+                    errorLog.push({
+                        block,
+                        error: "Unable to validate block"
+                    })
+                }
+                prevBlockHash = block.prevBlockHash;
+            }
+            resolve(errorLog)
         });
     }
+
 
 }
 
